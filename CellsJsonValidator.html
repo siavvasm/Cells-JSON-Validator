@@ -1,0 +1,73 @@
+<html>
+	<!-- Necesary Scripts that should be imported -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="djv.js"></script>
+
+	<head>
+		<title>Schema Validator</title>
+		<h1 align="center">Cells JSON Validator</h1>
+		<hr>
+	</head>
+	
+	<body>
+		<div id="gui" align="center">
+			<label> JSON Schema: </label>
+			<input id="json-schema" type="text" style="width:100px" placeholder="schema" />
+			<br>
+			<label> JSON String: </label>
+			<input id="json-string" type="text" style="width:100px" placeholder="json" />
+			<br>
+			<button id="validate-but">Validate</button>
+		</div>
+		
+		<script>
+		
+			// 2. JSON Validation
+			$("#validate-but").click(function() {
+			 
+			 // 1. Retrieve the json string and schema from the text fields
+			 json = document.getElementById("json-string").value;
+			 schema = document.getElementById("json-schema").value;
+			 
+			 // 2. Turn them into JavaScript objects
+			 json = JSON.parse(json);
+			 schema = JSON.parse(schema);
+			 
+			 // 3. Keep only the application schema
+			 cell_schema = schema["Cells"]["items"];
+				
+			 // 4. Create the validator
+			 env = new djv();
+			 
+			 // 5. Add the schema to the validator
+			 env.addSchema('cell', cell_schema);
+				
+			 // 6. Validate each application entry against the schema
+			 var message = "";
+			 var valid = true;
+			 
+			 for (var i = 0; i < json["Cells"].length; i++) {
+			 
+				// Validate the application against the schema
+				var temp = env.validate('cell', json["Cells"][i]);
+				
+				// Check if there is any violation
+				if (temp != undefined) {
+					valid = false;
+					message += "Cell_" + (i+1) + ": " + temp + "\n";
+				} 
+			 }
+			 
+			 // 7. Check if the json is valid and inform the user properly
+			 if (valid) {
+				alert("The JSON string is valid");
+			 } else {
+				alert("The JSON string is not valid.\nCheck the error logs below:\n\n" + message);
+			 }
+			});
+			
+		</script>
+	</body>
+	
+	
+</html>
